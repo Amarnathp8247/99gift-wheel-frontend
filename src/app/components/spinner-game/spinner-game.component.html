@@ -1,0 +1,141 @@
+<div class="particles-container" #particlesContainer></div>
+
+<div class="container">
+  <h1 class="title">✨ 99Gift Lucky Wheel ✨</h1>
+
+  <div class="wheel-container" #wheelContainer>
+    <div class="wheel" id="wheel" #wheel>
+      <div class="wheel-center"></div>
+      <div class="section"
+     *ngFor="let prize of prizes; let i = index"
+     [style.transform]="'rotate(' + (i * (360 / prizes.length)) + 'deg)'"
+     [ngClass]="['section', prize.cardClass?.toLowerCase() || 'default']">
+  <div class="section-content">
+    <span class="prize-value">{{ prize.value }}</span>
+    <div class="section-gift-box"></div>
+  </div>
+</div>
+
+    </div>
+    <div class="pointer"></div>
+  </div>
+
+  <button 
+    (click)="spinWheel()" 
+    [disabled]="!visitorId || isSpinning || prizes.length === 0" 
+    class="spin-button" 
+    #spinBtn>
+    🎯 SPIN TO WIN 🎯
+  </button>
+</div>
+
+<div class="fireworks-container" id="fireworksContainer" #fireworksContainer></div>
+
+<!-- Win Prize Card -->
+<div class="prize-card" id="prizeCard" #prizeCard>
+  <h2>🏆 CONGRATULATIONS! 🏆</h2>
+  <div id="voucherDisplay" #voucherDisplay></div>
+  <p id="prizeText" #prizeText></p>
+  <button class="close-btn" id="closeBtn" #closeBtn (click)="showSignup()">Redeem Now</button>
+</div>
+
+<!-- Lose Message Card -->
+<div class="lose-card" id="loseCard" #loseCard>
+  <h2>😢 BETTER LUCK NEXT TIME! 😢</h2>
+  <p>You didn't win this time, but don't give up!</p>
+  <button class="close-btn" (click)="closeLoseCard()">Try Again Tomorrow</button>
+</div>
+
+<!-- Visitor ID Popup -->
+<div class="visitor-id-popup-overlay" *ngIf="showVisitorIdPopup">
+  <div class="visitor-id-popup-container">
+    <div class="popup-header">
+      <h2>Welcome to 99Gift! 🎁</h2>
+      <p>Enter your Visitor ID to start spinning</p>
+    </div>
+    
+    <div class="popup-body">
+      <div class="input-group">
+        <input 
+          type="text" 
+          [(ngModel)]="visitorId" 
+          placeholder="Enter your Visitor ID"
+          (keyup.enter)="submitVisitorId()"
+          id="visitorId">
+      </div>
+    </div>
+    
+    <div class="popup-footer">
+      <button class="submit-btn" (click)="submitVisitorId()">
+        Let's Spin! ✨
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Signup Form -->
+<div class="signup-form-overlay" *ngIf="showSignupForm">
+  <div class="signup-form-container" #signupForm>
+    <button class="close-form-btn" (click)="closeSignupForm()">×</button>
+    <h2>Create Your 99Gift Account</h2>
+    <p>Complete your signup to claim your ₹{{walletAmount}} wallet balance</p>
+    
+    <form (submit)="onSubmitSignup()">
+      <div class="form-group">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" [(ngModel)]="signupData.name" name="name" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" [(ngModel)]="signupData.email" name="email" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" [(ngModel)]="signupData.phone" name="phone" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" [(ngModel)]="signupData.password" name="password" required>
+      </div>
+      
+      <button type="submit" class="submit-btn" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Processing...' : 'Create Account' }}
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div class="success-modal-overlay" *ngIf="showSuccessModal">
+  <div class="success-modal">
+    <div class="success-icon">✓</div>
+    <h2>Account Created Successfully!</h2>
+    <p>Your ₹{{walletAmount}} wallet balance will be credited within 24 hours.</p>
+    <button class="close-modal-btn" (click)="closeSuccessModal()">Continue</button>
+  </div>
+</div>
+
+<!-- API Message Popup -->
+<div class="api-message-popup" 
+     [class.show]="showApiMessage" 
+     [class.success]="apiMessageType === 'success'" 
+     [class.error]="apiMessageType === 'error'" 
+     [class.warning]="apiMessageType === 'warning'" 
+     [class.info]="apiMessageType === 'info'" 
+     #apiMessagePopup>
+  <div class="message-icon">
+    <span *ngIf="apiMessageType === 'success'">🎉</span>
+    <span *ngIf="apiMessageType === 'error'">😢</span>
+    <span *ngIf="apiMessageType === 'warning'">⚠️</span>
+    <span *ngIf="apiMessageType === 'info'">ℹ️</span>
+  </div>
+  <div class="message-content">
+    <h3>{{ apiMessageTitle }}</h3>
+    <p>{{ apiMessageContent }}</p>
+  </div>
+  <div class="message-close" (click)="hideApiMessage()">×</div>
+  <div class="message-progress" [style.width.%]="messageProgress"></div>
+</div>
