@@ -368,4 +368,8 @@ export class SpinnerGameComponent implements AfterViewInit, OnDestroy {
     clearInterval(this.particleInterval);
     clearInterval(this.messageTimeout);
   }
+  resetGame() {
+    localStorage.clear(); 
+    location.reload();    
+  }
 }
