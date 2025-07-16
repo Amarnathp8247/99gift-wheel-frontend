@@ -562,3 +562,26 @@
     margin-top: 0.5rem;
   }
 }
+
+.reset-btn {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: #ff4d4f;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 9999;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: background 0.3s ease;
+}
+
+.reset-btn:hover {
+  background: #d9363e;
+}
+
