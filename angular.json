@@ -3,9 +3,13 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "99gift": {
+    "gzonic-admin": {
       "projectType": "application",
-      "schematics": {},
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -13,31 +17,27 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/99gift",
+            "outputPath": "dist/99gift-wheel",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
               "zone.js"
             ],
             "tsConfig": "tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
             "assets": [
-              "src/favicon.ico",
-              "src/assets",
               {
                 "glob": "**/*",
-                "input": "src/assets",
-                "output": "/assets/"
-              }
+                "input": "public"
+              },
+              "src/assets"
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.scss",
+              "node_modules/ngx-toastr/toastr.css"
             ],
-            "scripts": [],
-            "stylePreprocessorOptions": {
-              "includePaths": [
-                "src/styles"
-              ]
-            }
+            "scripts": []
+            
           },
           "configurations": {
             "production": {
@@ -53,24 +53,12 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "all",
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.prod.ts"
-                }
-              ],
-              "optimization": true,
-              "aot": true,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true
+              "outputHashing": "all"
             },
             "development": {
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
-            
             }
           },
           "defaultConfiguration": "production"
@@ -79,19 +67,16 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "99gift:build:production"
+              "buildTarget": "gzonic-admin:build:production"
             },
             "development": {
-              "buildTarget": "99gift:build:development"
+              "buildTarget": "gzonic-admin:build:development"
             }
           },
           "defaultConfiguration": "development"
         },
         "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
-          "options": {
-            "browserTarget": "99gift:build"
-          }
+          "builder": "@angular-devkit/build-angular:extract-i18n"
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
@@ -101,18 +86,20 @@
               "zone.js/testing"
             ],
             "tsConfig": "tsconfig.spec.json",
+            "inlineStyleLanguage": "scss",
             "assets": [
-              "src/favicon.ico",
-              "src/assets"
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.scss"
             ],
             "scripts": []
           }
         }
       }
     }
-  },
-  "defaultProject": "99gift"
+  }
 }
