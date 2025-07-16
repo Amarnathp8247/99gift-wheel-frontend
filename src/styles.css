@@ -334,10 +334,10 @@ body {
   width: clamp(30px, 10vw, 60px);
   height: clamp(30px, 10vw, 60px);
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle, #ffd700, #ffeb3b, #ffd700);
+  background: radial-gradient(circle, #90caf9, #90caf9, #90caf9);
   border-radius: 50%;
   z-index: 10;
-  box-shadow: 0 0 clamp(10px, 3vw, 20px) #ffd700;
+  box-shadow: 0 0 clamp(10px, 3vw, 20px) #90caf9;
   animation: centerPulse 2s ease-in-out infinite;
 }
 
