@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
+import { environment } from '../../environments/environment';
 export interface Prize {
   _id: string;
   name: string;
@@ -45,7 +45,7 @@ export interface SignupResponse {
   providedIn: 'root'
 })
 export class GameService {
-  private baseUrl = 'http://localhost:8000/api/v1'; // Replace with actual backend API URL
+  private baseUrl = environment.apiBaseUrl;
 
   constructor(private http: HttpClient) {}
 
