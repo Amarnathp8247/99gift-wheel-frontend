@@ -1,60 +1,77 @@
-<div class="animated-background">
-  <div class="stars"></div>
-  <div class="twinkling"></div>
-  <div class="floating-particles">
-    <div class="particle" style="top: 10%; left: 20%;"></div>
-    <div class="particle" style="top: 50%; left: 70%;"></div>
-    <div class="glow" style="top: 30%; left: 40%;"></div>
-    <div class="diamond" style="top: 70%; left: 30%;"></div>
-    <div class="heart" style="top: 40%; left: 80%;"></div>
-  </div>
+<div class="animated-background"></div>
+
+<div class="pop-background">
+  <img src="assets/images/Amazon-Pay.png" class="pop-item item1" />
+  <img src="assets/images/Myntra.png" class="pop-item item2" />
+  <img src="assets/images/Nykaa.png" class="pop-item item3" />
+  <img src="assets/images/PVR.png" class="pop-item item4" />
+  <img src="assets/images/Tata-Cliq.png" class="pop-item item5" />
+  <img src="assets/images/Flipkart.png" class="pop-item item6" />
+  <img src="assets/images/Reliance_Digital.png" class="pop-item item7" />
+  <img src="assets/images/croma.png" class="pop-item item8" />
+  <img src="assets/images/lifestyle.png" class="pop-item item9" />
+  <img src="assets/images/Zomato.png" class="pop-item item10" />
+  <img src="assets/images/Kalyan_Jewellers.png" class="pop-item item11" />
+  <img src="assets/images/bookmyshow.png" class="pop-item item12" />
+  <img src="assets/images/Google-Play.png" class="pop-item item13" />
 </div>
 
 
+
 <div class="container">
-  <h1 class="title">✨ 99Gift Lucky Wheel ✨</h1>
+  <img src="assets/images/logo.png" alt="99Gift Logo" class="logo-img" />
 
   <div class="wheel-container" #wheelContainer>
     <div class="wheel" id="wheel" #wheel>
       <div class="wheel-center"></div>
-      <div class="section"
-     *ngFor="let prize of prizes; let i = index"
-     [style.transform]="'rotate(' + (i * (360 / prizes.length)) + 'deg)'"
-     [ngClass]="['section', prize.cardClass?.toLowerCase() || 'default']">
-  <div class="section-content">
-    <span class="prize-value">{{ prize.value }}</span>
-    <div class="section-gift-box"></div>
-  </div>
-</div>
-
+      <div
+        class="section"
+        *ngFor="let prize of prizes; let i = index"
+        [style.transform]="'rotate(' + i * (360 / prizes.length) + 'deg)'"
+        [ngClass]="['section', prize.cardClass?.toLowerCase() || 'default']"
+      >
+        <div class="section-content">
+          <span class="prize-value">{{ prize.value }}</span>
+          <div class="section-gift-box"></div>
+        </div>
+      </div>
     </div>
     <div class="pointer"></div>
   </div>
 
-  <button 
-    (click)="spinWheel()" 
-    [disabled]="!visitorId || isSpinning || prizes.length === 0" 
-    class="spin-button" 
-    #spinBtn>
+  <button
+    (click)="spinWheel()"
+    [disabled]="!visitorId || isSpinning || prizes.length === 0"
+    class="spin-button"
+    #spinBtn
+  >
     🎯 SPIN TO WIN 🎯
   </button>
 </div>
 
-<div class="fireworks-container" id="fireworksContainer" #fireworksContainer></div>
+<div
+  class="fireworks-container"
+  id="fireworksContainer"
+  #fireworksContainer
+></div>
 
 <!-- Win Prize Card -->
 <div class="prize-card" id="prizeCard" #prizeCard>
   <h2>🏆 CONGRATULATIONS! 🏆</h2>
   <div id="voucherDisplay" #voucherDisplay></div>
   <p id="prizeText" #prizeText></p>
-  <button class="close-btn" id="closeBtn" #closeBtn (click)="showSignup()">Redeem Now</button>
+  <button class="close-btn" id="closeBtn" #closeBtn (click)="showSignup()">
+    Redeem Now
+  </button>
 </div>
 
 <!-- Lose Message Card -->
 <div class="lose-card" id="loseCard" #loseCard>
   <h2>😢 BETTER LUCK NEXT TIME! 😢</h2>
   <p>You didn't win this time, but don't give up!</p>
-  <button class="close-btn" (click)="closeLoseCard()">Try Again Tomorrow</button>
+  <button class="close-btn" (click)="closeLoseCard()">
+    Try Again Tomorrow
+  </button>
 </div>
 
 <!-- Visitor ID Popup -->
@@ -64,18 +81,19 @@
       <h2>Welcome to 99Gift! 🎁</h2>
       <p>Enter your Visitor ID to start spinning</p>
     </div>
-    
+
     <div class="popup-body">
       <div class="input-group">
-        <input 
-          type="text" 
-          [(ngModel)]="visitorId" 
+        <input
+          type="text"
+          [(ngModel)]="visitorId"
           placeholder="Enter your Visitor ID"
           (keyup.enter)="submitVisitorId()"
-          id="visitorId">
+          id="visitorId"
+        />
       </div>
     </div>
-    
+
     <div class="popup-footer">
       <button class="submit-btn" (click)="submitVisitorId()">
         Let's Spin! ✨
@@ -89,31 +107,55 @@
   <div class="signup-form-container" #signupForm>
     <button class="close-form-btn" (click)="closeSignupForm()">×</button>
     <h2>Create Your 99Gift Account</h2>
-    <p>Complete your signup to claim your ₹{{walletAmount}} wallet balance</p>
-    
+    <p>Complete your signup to claim your ₹{{ walletAmount }} wallet balance</p>
+
     <form (submit)="onSubmitSignup()">
       <div class="form-group">
         <label for="name">Full Name</label>
-        <input type="text" id="name" [(ngModel)]="signupData.name" name="name" required>
+        <input
+          type="text"
+          id="name"
+          [(ngModel)]="signupData.name"
+          name="name"
+          required
+        />
       </div>
-      
+
       <div class="form-group">
         <label for="email">Email</label>
-        <input type="email" id="email" [(ngModel)]="signupData.email" name="email" required>
+        <input
+          type="email"
+          id="email"
+          [(ngModel)]="signupData.email"
+          name="email"
+          required
+        />
       </div>
-      
+
       <div class="form-group">
         <label for="phone">Phone Number</label>
-        <input type="tel" id="phone" [(ngModel)]="signupData.phone" name="phone" required>
+        <input
+          type="tel"
+          id="phone"
+          [(ngModel)]="signupData.phone"
+          name="phone"
+          required
+        />
       </div>
-      
+
       <div class="form-group">
         <label for="password">Password</label>
-        <input type="password" id="password" [(ngModel)]="signupData.password" name="password" required>
+        <input
+          type="password"
+          id="password"
+          [(ngModel)]="signupData.password"
+          name="password"
+          required
+        />
       </div>
-      
+
       <button type="submit" class="submit-btn" [disabled]="isSubmitting">
-        {{ isSubmitting ? 'Processing...' : 'Create Account' }}
+        {{ isSubmitting ? "Processing..." : "Create Account" }}
       </button>
     </form>
   </div>
@@ -124,19 +166,25 @@
   <div class="success-modal">
     <div class="success-icon">✓</div>
     <h2>Account Created Successfully!</h2>
-    <p>Your ₹{{walletAmount}} wallet balance will be credited within 24 hours.</p>
-    <button class="close-modal-btn" (click)="closeSuccessModal()">Continue</button>
+    <p>
+      Your ₹{{ walletAmount }} wallet balance will be credited within 24 hours.
+    </p>
+    <button class="close-modal-btn" (click)="closeSuccessModal()">
+      Continue
+    </button>
   </div>
 </div>
 
 <!-- API Message Popup -->
-<div class="api-message-popup" 
-     [class.show]="showApiMessage" 
-     [class.success]="apiMessageType === 'success'" 
-     [class.error]="apiMessageType === 'error'" 
-     [class.warning]="apiMessageType === 'warning'" 
-     [class.info]="apiMessageType === 'info'" 
-     #apiMessagePopup>
+<div
+  class="api-message-popup"
+  [class.show]="showApiMessage"
+  [class.success]="apiMessageType === 'success'"
+  [class.error]="apiMessageType === 'error'"
+  [class.warning]="apiMessageType === 'warning'"
+  [class.info]="apiMessageType === 'info'"
+  #apiMessagePopup
+>
   <div class="message-icon">
     <span *ngIf="apiMessageType === 'success'">🎉</span>
     <span *ngIf="apiMessageType === 'error'">😢</span>

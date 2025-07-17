@@ -399,7 +399,7 @@ body {
   text-align: center;
 }
 
-.section-gift-box {
+/* .section-gift-box {
   width: clamp(15px, 5vw, 30px);
   height: clamp(15px, 5vw, 30px);
   background: linear-gradient(45deg, #8b4513, #a0522d);
@@ -409,9 +409,9 @@ body {
   opacity: 0.3;
   transition: all 0.5s ease;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
-}
+} */
 
-.section-gift-box::before {
+/* .section-gift-box::before {
   content: "";
   position: absolute;
   top: 50%;
@@ -420,9 +420,9 @@ body {
   height: clamp(2px, 0.6vw, 4px);
   background: linear-gradient(45deg, #ffd700, #ffeb3b);
   transform: translateY(-50%);
-}
+} */
 
-.section-gift-box::after {
+/* .section-gift-box::after {
   content: "";
   position: absolute;
   top: 0;
@@ -431,7 +431,7 @@ body {
   width: clamp(2px, 0.6vw, 4px);
   background: linear-gradient(45deg, #ffd700, #ffeb3b);
   transform: translateX(-50%);
-}
+} */
 
 .section-gift-box.winner {
   opacity: 1;

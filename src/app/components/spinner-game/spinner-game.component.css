@@ -1,149 +1,82 @@
-/* ========== Base Responsive Styles ========== */
-
 .animated-background {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: -10;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  z-index: -20;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
 }
 
-/* 🌌 Starry gradient background */
-.stars {
-  background: #0b0c1e
-    url("https://www.transparenttextures.com/patterns/stardust.png") repeat;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  animation: moveStars 200s linear infinite;
-}
-
-/* ✨ Twinkling overlay */
-.twinkling {
-  background: transparent
-    url("https://www.transparenttextures.com/patterns/noise.png") repeat;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  animation: moveTwinkling 100s linear infinite;
-}
-
-/* 🟡 Floating glowing particles */
-.particle {
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  background: radial-gradient(circle, #ffeb3b, #fbc02d);
-  border-radius: 50%;
-  opacity: 0.8;
-  animation: floatParticle 8s infinite ease-in-out;
-}
-
-.glow {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  background: radial-gradient(circle, #00f2fe, #4facfe);
-  border-radius: 50%;
-  box-shadow: 0 0 10px #00f2fe;
-  animation: pulse 4s infinite ease-in-out;
-}
-
-.diamond {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-  transform: rotate(45deg);
-  animation: diamondFloat 6s infinite ease-in-out;
-}
-
-.heart {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  background: #ff6b6b;
-  transform: rotate(-45deg);
-  animation: heartBeat 5s infinite ease-in-out;
-}
-.heart::before,
-.heart::after {
-  content: "";
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  background: #ff6b6b;
-  border-radius: 50%;
-}
-.heart::before {
-  top: -6px;
-  left: 0;
-}
-.heart::after {
-  left: -6px;
+/* Main background + floating icons */
+.pop-background {
+  position: fixed;
   top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: -10;
+  background: url("/assets/images/BG.jpg") no-repeat center center/cover;
+  pointer-events: none;
+  filter: brightness(0.9);
 }
 
-/* 🌠 Animations */
-@keyframes moveStars {
-  from {
-    background-position: 0 0;
-  }
-  to {
-    background-position: -10000px 5000px;
-  }
+
+/* Pop icons */
+.pop-item {
+  position: absolute;
+  width: 8vw;
+  height: 8vw;
+  max-width: 60px;
+  max-height: 60px;
+  opacity: 0;
+  animation: popUp 8s infinite ease-in-out;
+  object-fit: contain;
 }
 
-@keyframes moveTwinkling {
-  from {
-    background-position: 0 0;
-  }
-  to {
-    background-position: 10000px 0;
-  }
-}
+.item1 { top: 60%; left: 20%; animation-delay: 0s; }
+.item2 { top: 60%; left: 80%; animation-delay: 1s; }
+.item3 { top: 50%; left: 40%; animation-delay: 2s; }
+.item4 { top: 80%; left: 10%; animation-delay: 3s; }
+.item5 { top: 30%; left: 25%; animation-delay: 4s; }
+.item6 { top: 20%; left: 70%; animation-delay: 5s; }
+.item7 { top: 40%; left: 50%; animation-delay: 6s; }
+.item8 { top: 45%; left: 10%; animation-delay: 7s; }
+.item9 { top: 45%; left: 70%; animation-delay: 8s; }
+.item10 { top: 25%; left: 15%; animation-delay: 9s; }
+.item11 { top: 35%; left: 80%; animation-delay: 10s; }
+.item12 { top: 70%; left: 70%; animation-delay: 11s; }
+.item13 { top: 50%; left: 10%; animation-delay: 12s; }
 
-@keyframes floatParticle {
-  0%,
-  100% {
-    transform: translateY(0px) scale(1);
-  }
-  50% {
-    transform: translateY(-30px) scale(1.3);
-  }
-}
 
-@keyframes pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 0.7;
+/* Animation */
+@keyframes popUp {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
   }
-  50% {
-    transform: scale(1.4);
+  20% {
     opacity: 1;
+    transform: scale(1.2) translateY(-10px);
+  }
+  70% {
+    transform: scale(1) translateY(-80px);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(0.5) translateY(-120px);
+    opacity: 0;
   }
 }
 
-@keyframes diamondFloat {
-  0%,
-  100% {
-    transform: rotate(45deg) translateY(0px);
-  }
-  50% {
-    transform: rotate(225deg) translateY(-40px);
-  }
-}
-
-@keyframes heartBeat {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.3);
+/* Optional: responsive tweaks for smaller screens */
+@media (max-width: 768px) {
+  .pop-item {
+    width: 12vw;
+    height: 12vw;
+    max-width: 40px;
+    max-height: 40px;
   }
 }
 
@@ -155,7 +88,7 @@
 }
 
 .section-gift-box {
-  width: 100px;
+  width: 50px;
   height: 50px;
 
   padding: 20px;
@@ -176,38 +109,46 @@
   z-index: 10;
 }
 
-/* Hover for 3D pop effect */
+/* Hover for 3D pop effect
 .section-gift-box:hover {
   transform: translateY(-4px);
   box-shadow: 0 10px 20px rgba(0, 184, 238, 0.6),
     inset 0 0 10px rgba(255, 255, 255, 0.2);
-}
+} */
 
 /* ========== Small Devices (Mobile) ========== */
 @media (max-width: 576px) {
   .container {
     max-width: 100%;
     padding: 0.5rem;
+    margin-top: -100px; /* Adjusted for smaller screens */
   }
+  
 
-  .title {
-    font-size: clamp(1.2rem, 4vw, 2.2rem);
-    font-weight: bold;
-    color: hsl(212, 23%, 85%); /* ✅ Solid blue */
-    margin-bottom: clamp(1rem, 3vw, 2rem);
-    text-align: center;
-    padding: 0 10px;
-
-    /* Remove gradient and clip */
-    background: none;
-    background-size: unset;
-    -webkit-background-clip: unset;
-    -webkit-text-fill-color: unset;
-    background-clip: unset;
-
-    /* Remove animation if still present */
-    animation: none;
+  .logo-img {
+    height: 90px;
+    object-fit: contain;
+    margin-bottom: 50px;
   }
+  .pop-item {
+    width: 10vw;
+    height: 10vw;
+    max-width: 40px;
+    max-height: 40px;
+  }
+   .item1 { top: 20%; left: 5%; animation-delay: 0.3s; }
+  .item2 { top: 30%; left: 5%; animation-delay: 0.6s; }
+  .item3 { top: 10%; left: 90%; animation-delay: 0.9s; }
+  .item4 { top: 20%; left: 90%; animation-delay: 1.2s; }
+  .item5 { top: 15%; left: 90%; animation-delay: 1.5s; }
+  .item6 { top: 23%; left: 62%; animation-delay: 1.8s; }
+  .item7 { top: 43%; left: 46%; animation-delay: 2.1s; }
+  .item8 { top: 55%; left: 26%; animation-delay: 2.4s; }
+  .item9 { top: 45%; left: 56%; animation-delay: 2.7s; }
+  .item10 { top: 25%; left: 8%; animation-delay: 3s; }
+  .item11 { top: 38%; left: 70%; animation-delay: 3.3s; }
+  .item12 { top: 17%; left: 42%; animation-delay: 3.6s; }
+  .item13 { top: 50%; left: 5%; animation-delay: 3.9s; }
 
   .wheel-container {
     width: 280px;
@@ -219,11 +160,9 @@
     background-color: #42a5f5; /* light blue center */
     border: 4px solid #42a5f5; /* thinner ring */
     border-radius: 50%;
-    box-shadow: 0 0 50px rgb(0, 184, 238), 0 0 80px rgb(0, 184, 238);
+    box-shadow: 0 0 20px rgb(0, 184, 238), 0 0 20px rgb(0, 184, 238);
     transition: box-shadow 0.3s ease;
   }
-
- 
 
   .wheel-center {
     width: 40px;
@@ -241,11 +180,26 @@
   .section-content {
     transform: rotate(45deg) translate(-15%, -15%) scale(0.8);
   }
-  .section-gift-box {
-    width: 120px;
-    padding: 16px;
-    font-size: 0.9rem;
-  }
+.section-gift-box {
+  width: 40px;
+  height: 40px;
+  padding: 10px;
+  background: linear-gradient(135deg, #00b8ee, #009ec3);
+  border: 2px solid #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 184, 238, 0.3),
+    inset 0 0 6px rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  z-index: 10;
+}
 
   .prize-value {
     font-size: 0.8rem;
@@ -282,24 +236,12 @@
     max-width: 90%;
     margin-top: -400px;
   }
+  
 
-  .title {
-    font-size: clamp(1.2rem, 4vw, 2.2rem);
-    font-weight: bold;
-    color: #e9f0f7; /* ✅ Solid blue */
-    margin-bottom: clamp(1rem, 3vw, 2rem);
-    text-align: center;
-    padding: 0 10px;
-
-    /* Remove gradient and clip */
-    background: none;
-    background-size: unset;
-    -webkit-background-clip: unset;
-    -webkit-text-fill-color: unset;
-    background-clip: unset;
-
-    /* Remove animation if still present */
-    animation: none;
+  .logo-img {
+    height: 90px;
+    object-fit: contain;
+    margin-bottom: 50px;
   }
 
   .wheel-container {
@@ -312,7 +254,7 @@
     background-color: #42a5f5; /* light blue center */
     border: 4px solid #87cefa; /* thinner ring */
     border-radius: 50%;
-    box-shadow: 0 0 50px rgba(0, 191, 255, 0.5), 0 0 80px rgba(0, 191, 255, 0.3);
+    box-shadow: 0 0 20px rgba(0, 191, 255, 0.5), 0 0 20px rgba(0, 191, 255, 0.3);
     transition: box-shadow 0.3s ease;
   }
 
@@ -340,10 +282,11 @@
     transform: rotate(45deg) translate(-20%, -20%);
   }
 
-  .section-gift-box {
-    width: 140px;
-    padding: 18px;
-    font-size: 1rem;
+ .section-gift-box {
+    width: 60px;
+    height: 60px;
+    padding: 16px;
+    font-size: 0.9rem;
   }
 
   .prize-value {
@@ -381,10 +324,11 @@
     box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.2);
     transition: all 0.3s ease;
   }
-  .section-gift-box {
-    width: 180px;
-    padding: 24px;
-    font-size: 1.1rem;
+   .section-gift-box {
+    width: 70px;
+    height: 70px;
+    padding: 18px;
+    font-size: 1rem;
   }
 
   .section-content {
@@ -398,23 +342,10 @@
     font-size: 1rem;
   }
 
-  .title {
-    font-size: clamp(1.2rem, 4vw, 2.2rem);
-    font-weight: bold;
-    color: hsl(210, 48%, 89%); /* ✅ Solid blue */
-    margin-bottom: clamp(1rem, 3vw, 2rem);
-    text-align: center;
-    padding: 0 10px;
-
-    /* Remove gradient and clip */
-    background: none;
-    background-size: unset;
-    -webkit-background-clip: unset;
-    -webkit-text-fill-color: unset;
-    background-clip: unset;
-
-    /* Remove animation if still present */
-    animation: none;
+  .logo-img {
+    height: 90px;
+    object-fit: contain;
+    margin-bottom: 50px;
   }
 
   .wheel-container {
@@ -426,11 +357,9 @@
     background-color: #e6f7ff; /* light blue center */
     border: 4px solid #87cefa; /* thinner ring */
     border-radius: 50%;
-    box-shadow: 0 0 50px rgb(0, 184, 238), 0 0 80px rgb(0, 184, 238);
+    box-shadow: 0 0 10px rgb(0, 184, 238), 0 0 30px rgb(0, 184, 238);
     transition: box-shadow 0.3s ease;
   }
-
- 
 
   .wheel-center {
     width: 40px;
@@ -477,6 +406,7 @@
   padding: 1rem 2rem;
   font-size: 1.1rem;
   transition: all 0.3s ease;
+  background: #42a5f5;
 }
 
 /* Form Elements */
