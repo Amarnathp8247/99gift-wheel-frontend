@@ -23,13 +23,20 @@ export class AudioService {
       'background': new Audio('assets/audio/background-music-224633.mp3')
     };
     
+    // Set loop for background music
     this.audioElements['background'].loop = true;
+    
+    // Set default volumes
+    this.setVolume('background', 0.3);
+    this.setVolume('spinner', 0.5);
+    this.setVolume('win', 0.7);
+    this.setVolume('celebration', 0.6);
   }
 
   play(sound: AudioKey): void {
     if (this.audioElements[sound]) {
       this.audioElements[sound].currentTime = 0;
-      this.audioElements[sound].play();
+      this.audioElements[sound].play().catch(e => console.warn('Audio play failed:', e));
     }
   }
 
@@ -42,13 +49,12 @@ export class AudioService {
 
   setVolume(sound: AudioKey, volume: number): void {
     if (this.audioElements[sound]) {
-      this.audioElements[sound].volume = volume;
+      this.audioElements[sound].volume = Math.min(1, Math.max(0, volume));
     }
   }
 
   toggleBackgroundMusic(): void {
     if (this.audioElements['background'].paused) {
-      this.setVolume('background', 0.3);
       this.play('background');
     } else {
       this.stop('background');

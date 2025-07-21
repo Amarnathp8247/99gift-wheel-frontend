@@ -1,0 +1,160 @@
+.input-group {
+  position: relative;
+  width: 100%;
+  margin: 1rem 0;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 40px 12px 40px;
+  font-size: 16px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  outline: none;
+  background-color: #fff;
+  color: #333;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.input-group input:focus {
+  border-color: #ff6f61;
+  box-shadow: 0 0 8px rgba(255, 111, 97, 0.3);
+}
+
+.input-group .input-decoration {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.input-group .input-decoration .icon {
+  font-size: 18px;
+  color: #ff6f61;
+}
+
+.input-group .underline {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  height: 2px;
+  width: 0%;
+  background-color: #ff6f61;
+  transition: width 0.3s ease;
+}
+
+.input-group input:focus ~ .input-decoration .underline {
+  width: 100%;
+}
+
+.hint-text {
+  font-size: 13px;
+  color: #888;
+  margin-top: 5px;
+  text-align: left;
+  padding-left: 5px;
+}
+
+/* Add these new styles to your existing CSS file */
+
+/* Sound toggle button */
+.sound-toggle {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 16px;
+  cursor: pointer;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.sound-toggle:hover {
+  background: rgba(0, 0, 0, 0.7);
+  transform: scale(1.1);
+}
+
+/* Enhanced modal transitions */
+.visitor-id-popup-overlay,
+.signup-form-overlay,
+.success-modal-overlay {
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease-out;
+}
+
+.visitor-id-popup-overlay.show,
+.signup-form-overlay.show,
+.success-modal-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.visitor-id-popup-container,
+.signup-form-container,
+.success-modal,
+.prize-card,
+.lose-card {
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.visitor-id-popup-overlay.show .visitor-id-popup-container,
+.signup-form-overlay.show .signup-form-container,
+.success-modal-overlay.show .success-modal,
+.prize-card.show,
+.lose-card.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Enhanced wheel animation */
+.wheel {
+  transition: transform 4s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+/* Enhanced fireworks */
+.fireworks-container.active {
+  animation: fireworksShow 0.5s ease-out forwards;
+}
+
+@keyframes fireworksShow {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* Enhanced button hover effects */
+.spin-button:hover::before {
+  animation: buttonShine 1.5s infinite;
+}
+
+@keyframes buttonShine {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Enhanced shake animation */
+.shake-animation {
+  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* Keep all your existing CSS below this point */
+/* ... [rest of your existing CSS] ... */
+
