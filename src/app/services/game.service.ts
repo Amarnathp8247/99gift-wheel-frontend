@@ -5,10 +5,12 @@ import { environment } from '../../environments/environment';
 export interface Prize {
   _id: string;
   name: string;
-  cardClass: string;
-  brand: string;
+  cardClass?: string;
+  brand?: string;
   value: string;
-  codePrefix: string;
+  codePrefix?: string;
+  walletAmount?: number;  // <-- Add this line
+  description?: string;
 }
 
 export interface SpinResult {
@@ -31,6 +33,7 @@ export interface SignupPayload {
 export interface SignupResponse {
   success: boolean;
   message?: string;
+  userId?: string;
   data?: {
     id: string;
     name: string;
@@ -49,6 +52,10 @@ export class GameService {
 
   constructor(private http: HttpClient) {}
 
+
+  visiterId(visitorId: string): Observable<SpinResult> {
+    return this.http.post<SpinResult>(`${this.baseUrl}/user/anonymous-user`, { visitorId });
+  }
   getPrizes(): Observable<Prize[]> {
     return this.http.get<Prize[]>(`${this.baseUrl}/admin/spin/prizes`);
   }

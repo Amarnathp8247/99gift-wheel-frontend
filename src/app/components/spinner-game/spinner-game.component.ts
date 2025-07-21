@@ -4,7 +4,9 @@ import {
   ViewChild,
   AfterViewInit,
   Renderer2,
-  OnDestroy
+  OnDestroy,
+  NgZone,
+  ViewEncapsulation,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -13,7 +15,7 @@ import {
   Prize,
   SpinResult,
   SignupPayload,
-  SignupResponse
+  SignupResponse,
 } from '../../services/game.service';
 
 @Component({
@@ -21,39 +23,28 @@ import {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './spinner-game.component.html',
-  styleUrls: ['./spinner-game.component.css']
+  styleUrls: ['./spinner-game.component.css'],
+  encapsulation: ViewEncapsulation.Emulated
 })
 export class SpinnerGameComponent implements AfterViewInit, OnDestroy {
   @ViewChild('wheel') wheel!: ElementRef;
   @ViewChild('spinBtn') spinBtn!: ElementRef;
-  @ViewChild('prizeCard') prizeCard!: ElementRef;
-  @ViewChild('prizeText') prizeText!: ElementRef;
   @ViewChild('voucherDisplay') voucherDisplay!: ElementRef;
-  @ViewChild('closeBtn') closeBtn!: ElementRef;
+  @ViewChild('prizeText') prizeText!: ElementRef;
   @ViewChild('fireworksContainer') fireworksContainer!: ElementRef;
-  @ViewChild('soundIndicator') soundIndicator!: ElementRef;
-  @ViewChild('particlesContainer') particlesContainer!: ElementRef;
-  @ViewChild('wheelContainer') wheelContainer!: ElementRef;
   @ViewChild('signupForm') signupForm!: ElementRef;
-  @ViewChild('successModal') successModal!: ElementRef;
   @ViewChild('apiMessagePopup') apiMessagePopup!: ElementRef;
-  @ViewChild('loseCard') loseCard!: ElementRef;
 
   visitorId: string = '';
   prizes: Prize[] = [];
   currentRotation = 0;
   isSpinning = false;
-  showVisitorIdPrompt = true;
+  showVisitorIdPopup = true;
   visitorIdEntered = false;
-  colorInterval: any;
-  ambientSoundInterval: any;
-  particleInterval: any;
   showSignupForm = false;
   showSuccessModal = false;
   walletAmount = 0;
   isSubmitting = false;
-  showVisitorIdPopup = true;
-  showInputHint = false;
   showApiMessage = false;
   apiMessageTitle = '';
   apiMessageContent = '';
@@ -61,26 +52,27 @@ export class SpinnerGameComponent implements AfterViewInit, OnDestroy {
   messageProgress = 100;
   private messageTimeout: any;
 
+  currentPrize: Prize | null = null;
+  showPrizeCard = false;
+  showLoseCard = false;
+
   signupData = {
     name: '',
     email: '',
     phone: '',
     password: '',
     city: '',
-    gender: 'male'
+    gender: 'male',
   };
 
-  constructor(private renderer: Renderer2, private gameService: GameService) {}
+  constructor(
+    private renderer: Renderer2,
+    private gameService: GameService,
+    private ngZone: NgZone
+  ) {}
 
   ngAfterViewInit(): void {
     this.fetchPrizes();
-    this.createParticles();
-    this.createOrbitRings();
-    this.regenerateParticles();
-    this.simulateAmbientSounds();
-    this.startColorCycle();
-    this.checkSavedVisitorId();
-
     const savedVisitorId = localStorage.getItem('visitorId');
     if (savedVisitorId) {
       this.visitorId = savedVisitorId;
@@ -91,10 +83,6 @@ export class SpinnerGameComponent implements AfterViewInit, OnDestroy {
         this.showVisitorIdPopup = true;
       }, 1000);
     }
-
-    this.closeBtn.nativeElement.addEventListener('click', () => {
-      this.prizeCard.nativeElement.classList.remove('show');
-    });
   }
 
   fetchPrizes() {
@@ -112,178 +100,154 @@ export class SpinnerGameComponent implements AfterViewInit, OnDestroy {
       error: () => {
         this.prizes = [];
         this.showApiMessagePopup('Error', 'Failed to load prizes.', 'error');
-      }
+      },
     });
   }
 
   submitVisitorId() {
-    if (this.visitorId && this.visitorId.trim()) {
-      this.showVisitorIdPopup = false;
-      this.visitorIdEntered = true;
-      localStorage.setItem('visitorId', this.visitorId.trim());
-      this.showApiMessagePopup('Welcome!', 'Get ready to spin the wheel!', 'success');
-    } else {
-      this.showInputHint = true;
-      this.shakeInput();
+    if (!this.visitorId.trim()) {
+      this.showApiMessagePopup('Error', 'Visitor ID cannot be empty.', 'error');
+      return;
     }
-  }
 
-  showApiMessagePopup(
-    title: string,
-    message: string,
-    type: 'success' | 'error' | 'warning' | 'info' = 'info',
-    duration: number = 5000
-  ) {
-    this.apiMessageTitle = title;
-    this.apiMessageContent = message;
-    this.apiMessageType = type;
-    this.showApiMessage = true;
-    this.messageProgress = 100;
-    clearInterval(this.messageTimeout);
+    this.gameService.visiterId(this.visitorId).subscribe({
+      next: (result: SpinResult) => {
+        this.walletAmount = result.walletAmount || 0;
+        this.visitorIdEntered = true;
+        localStorage.setItem('visitorId', this.visitorId);
+        this.showVisitorIdPopup = false;
+        this.spinBtn.nativeElement.disabled = false;
 
-    const interval = 50;
-    const steps = duration / interval;
-    const stepValue = 100 / steps;
-
-    this.messageTimeout = setInterval(() => {
-      this.messageProgress -= stepValue;
-      if (this.messageProgress <= 0) this.hideApiMessage();
-    }, interval);
-  }
-
-  hideApiMessage() {
-    this.showApiMessage = false;
-    clearInterval(this.messageTimeout);
-  }
-
-  checkSavedVisitorId() {
-    const savedVisitorId = localStorage.getItem('visitorId');
-    if (savedVisitorId) {
-      this.visitorId = savedVisitorId;
-      this.showVisitorIdPrompt = false;
-      this.onVisitorIdSubmit();
-    }
-  }
-
-  onVisitorIdSubmit() {
-    if (this.visitorId && this.visitorId.trim()) {
-      this.visitorIdEntered = true;
-      this.showVisitorIdPrompt = false;
-      localStorage.setItem('visitorId', this.visitorId.trim());
-      setTimeout(() => this.spinBtn.nativeElement.focus(), 1000);
-    }
-  }
-
-  onVisitorIdFocus(): void {
-    this.showVisitorIdPrompt = false;
-  }
-
-  onVisitorIdBlur(): void {
-    if (!this.visitorId || this.visitorId.trim() === '') {
-      this.showVisitorIdPrompt = true;
-      this.visitorIdEntered = false;
-    }
+        if (result.status === 'win' && result.prize) {
+          this.showApiMessagePopup('Success!', `You won! ₹${this.walletAmount}`, 'success');
+        } else if (result.status === 'lose') {
+          this.showApiMessagePopup('Welcome!', 'You can spin again soon!', 'info');
+        } else {
+          this.showApiMessagePopup('Info', result.message || 'Visitor ID registered successfully.', 'info');
+        }
+      },
+      error: (err) => {
+        const apiMessage = err?.error?.message || 'Failed to register visitor ID.';
+        this.showApiMessagePopup('Error', apiMessage, 'error');
+      },
+    });
   }
 
   spinWheel() {
     if (this.isSpinning || this.prizes.length === 0) return;
 
     if (!this.visitorId || this.visitorId.trim() === '') {
-      this.showVisitorIdPrompt = true;
+      this.showVisitorIdPopup = true;
       this.shakeInput();
       this.showApiMessagePopup('Oops!', 'Please enter your Visitor ID first!', 'warning');
       return;
     }
 
-    const visitorId = this.visitorId.trim();
     this.isSpinning = true;
+    this.spinBtn.nativeElement.disabled = true;
 
-    this.gameService.handleSpin(visitorId).subscribe({
-      next: (result: SpinResult) => {
-        if (result.status === 'win' && result.prize) {
-          this.walletAmount = this.calculateWalletAmount(result.prize.value);
-          this.animateWheelToPrize(result.prize);
-          this.showApiMessagePopup('Congratulations!', `You won ${result.prize.value}!`, 'success');
-        } else if (result.status === 'lose') {
+    this.gameService.handleSpin(this.visitorId).subscribe({
+      next: (result: any) => {
+        const spinResult = result?.data?.result;
+        const prize = result?.data?.prize;
+
+        if (spinResult === 'win' && prize) {
+          this.currentPrize = prize;
+          this.walletAmount = prize.walletAmount || 0;
+          this.animateWheelToPrize(prize);
+        } else if (spinResult === 'lose') {
+          this.currentPrize = null;
+          this.walletAmount = 0;
           this.animateWheelToLose();
-          this.showApiMessagePopup('Try Again!', 'Better luck next time!', 'info');
         } else if (result.status === 'limit') {
           this.isSpinning = false;
+          this.spinBtn.nativeElement.disabled = true;
           this.showApiMessagePopup('Spin Limit Reached', result.message || 'Try again tomorrow.', 'warning');
         } else {
           this.isSpinning = false;
+          this.spinBtn.nativeElement.disabled = false;
           this.showApiMessagePopup('Oops!', result.message || 'Spin failed.', 'error');
         }
       },
-      error: () => {
+      error: (err) => {
         this.isSpinning = false;
-        this.showApiMessagePopup('Error', 'Spin failed. Try again.', 'error');
-      }
+        this.spinBtn.nativeElement.disabled = false;
+        const apiMessage = err?.error?.message || 'Failed to spin the wheel.';
+        this.showApiMessagePopup('Error', apiMessage, 'error');
+      },
     });
   }
 
-  calculateWalletAmount(value: string): number {
-    const numericValue = parseInt(value.replace(/\D/g, ''));
-    return isNaN(numericValue) ? 0 : numericValue;
-  }
-
-  shakeInput() {
-    const inputElement = document.getElementById('visitorId');
-    inputElement?.classList.add('shake-animation');
-    setTimeout(() => inputElement?.classList.remove('shake-animation'), 500);
-  }
-
   animateWheelToPrize(prize: Prize) {
-    const index = this.prizes.findIndex(p => p._id === prize._id);
-    const total = this.prizes.length;
-    const anglePerPrize = 360 / total;
-    const rotateTo = 360 - (index * anglePerPrize) - anglePerPrize / 2;
-    const totalRotation = this.currentRotation + (360 * 5) + rotateTo;
+    const index = this.prizes.findIndex((p) => p._id === prize._id);
+    if (index === -1) {
+      this.isSpinning = false;
+      this.spinBtn.nativeElement.disabled = false;
+      return;
+    }
 
-    this.renderer.setStyle(this.wheel.nativeElement, 'transition', 'transform 4s ease-out');
+    const anglePerPrize = 360 / this.prizes.length;
+    const rotateTo = 360 - index * anglePerPrize - anglePerPrize / 2;
+    const totalRotation = this.currentRotation + 360 * 5 + rotateTo;
+  
+    this.renderer.setStyle(this.wheel.nativeElement, 'transition', 'transform 4s cubic-bezier(0.2, 0.8, 0.3, 1)');
     this.renderer.setStyle(this.wheel.nativeElement, 'transform', `rotate(${totalRotation}deg)`);
     this.currentRotation = totalRotation;
-
+  
     setTimeout(() => {
-      this.voucherDisplay.nativeElement.innerText = `You won ₹${this.walletAmount} in your 99Gift Wallet!`;
-      this.prizeText.nativeElement.innerText = `Your prize will be added after signup.`;
-      this.prizeCard.nativeElement.classList.add('show');
-      this.fireworksContainer.nativeElement.classList.add('active');
-
-      setTimeout(() => this.fireworksContainer.nativeElement.classList.remove('active'), 3000);
-
-      this.isSpinning = false;
-      this.renderer.setStyle(this.wheel.nativeElement, 'transition', 'none');
-      this.currentRotation %= 360;
-      this.renderer.setStyle(this.wheel.nativeElement, 'transform', `rotate(${this.currentRotation}deg)`);
-    }, 4200);
+      this.ngZone.run(() => {
+        this.voucherDisplay.nativeElement.textContent = `You won ₹${this.walletAmount} in your 99Gift Wallet!`;
+        this.prizeText.nativeElement.textContent = this.currentPrize?.description || '';
+        this.showPrizeCard = true;
+        this.showLoseCard = false;
+        this.fireworksContainer.nativeElement.classList.add('active');
+        
+        setTimeout(() => {
+          this.fireworksContainer.nativeElement.classList.remove('active');
+        }, 3000);
+  
+        this.isSpinning = false;
+        this.spinBtn.nativeElement.disabled = false;
+        this.renderer.setStyle(this.wheel.nativeElement, 'transition', 'none');
+        this.currentRotation %= 360;
+        this.renderer.setStyle(this.wheel.nativeElement, 'transform', `rotate(${this.currentRotation}deg)`);
+      });
+    }, 4000);
   }
-
+  
   animateWheelToLose() {
     const index = Math.floor(Math.random() * this.prizes.length);
-    const total = this.prizes.length;
-    const anglePerPrize = 360 / total;
-    const rotateTo = 360 - (index * anglePerPrize) - anglePerPrize / 2;
-    const totalRotation = this.currentRotation + (360 * 5) + rotateTo;
-
-    this.renderer.setStyle(this.wheel.nativeElement, 'transition', 'transform 4s ease-out');
+    const anglePerPrize = 360 / this.prizes.length;
+    const rotateTo = 360 - index * anglePerPrize - anglePerPrize / 2;
+    const totalRotation = this.currentRotation + 360 * 5 + rotateTo;
+  
+    this.renderer.setStyle(this.wheel.nativeElement, 'transition', 'transform 4s cubic-bezier(0.2, 0.8, 0.3, 1)');
     this.renderer.setStyle(this.wheel.nativeElement, 'transform', `rotate(${totalRotation}deg)`);
     this.currentRotation = totalRotation;
-
+  
     setTimeout(() => {
-      this.loseCard.nativeElement.classList.add('show');
-      this.isSpinning = false;
-      this.renderer.setStyle(this.wheel.nativeElement, 'transition', 'none');
-      this.currentRotation %= 360;
-      this.renderer.setStyle(this.wheel.nativeElement, 'transform', `rotate(${this.currentRotation}deg)`);
-    }, 4200);
+      this.ngZone.run(() => {
+        this.showLoseCard = true;
+        this.showPrizeCard = false;
+        this.isSpinning = false;
+        this.spinBtn.nativeElement.disabled = false;
+  
+        this.renderer.setStyle(this.wheel.nativeElement, 'transition', 'none');
+        this.currentRotation %= 360;
+        this.renderer.setStyle(this.wheel.nativeElement, 'transform', `rotate(${this.currentRotation}deg)`);
+      });
+    }, 4000);
   }
 
   showSignup() {
-    this.prizeCard.nativeElement.classList.remove('show');
+    this.showPrizeCard = false;
     setTimeout(() => {
       this.showSignupForm = true;
-    }, 500);
+    }, 300);
+  }
+
+  closePrizeCard() {
+    this.showPrizeCard = false;
   }
 
   closeSignupForm() {
@@ -310,14 +274,18 @@ export class SpinnerGameComponent implements AfterViewInit, OnDestroy {
       city: this.signupData.city,
       gender: this.signupData.gender,
       visitorId: this.visitorId,
-      walletAmount: this.walletAmount
+      walletAmount: this.walletAmount,
     };
 
     this.gameService.signupUser(payload).subscribe({
       next: (response: SignupResponse) => {
-        if (response.success) {
+        if (response.success && response.userId) {
           this.showSignupForm = false;
-          setTimeout(() => (this.showSuccessModal = true), 500);
+          this.visitorId = response.userId;
+          localStorage.setItem('visitorId', this.visitorId);
+          setTimeout(() => {
+            this.showSuccessModal = true;
+          }, 300);
           this.showApiMessagePopup('Success!', 'Account created successfully!', 'success');
         } else {
           this.showApiMessagePopup('Signup Failed', response.message || 'Try again.', 'error');
@@ -327,16 +295,17 @@ export class SpinnerGameComponent implements AfterViewInit, OnDestroy {
       error: (error) => {
         this.showApiMessagePopup('Error', error.message || 'Signup failed.', 'error');
         this.isSubmitting = false;
-      }
+      },
     });
   }
 
   closeLoseCard() {
-    this.loseCard.nativeElement.classList.remove('show');
+    this.showLoseCard = false;
     localStorage.removeItem('visitorId');
     this.visitorId = '';
     this.visitorIdEntered = false;
     this.showVisitorIdPopup = true;
+    this.spinBtn.nativeElement.disabled = false;
   }
 
   closeSuccessModal() {
@@ -351,25 +320,54 @@ export class SpinnerGameComponent implements AfterViewInit, OnDestroy {
       phone: '',
       password: '',
       city: '',
-      gender: 'male'
+      gender: 'male',
     };
   }
 
-  createParticles() {}
-  createOrbitRings() {}
-  simulateAmbientSounds() {}
-  showSoundEffect(text: string) {}
-  startColorCycle() {}
-  regenerateParticles() {}
+  shakeInput() {
+    const inputElement = document.getElementById('visitorId');
+    if (inputElement) {
+      inputElement.classList.add('shake-animation');
+      setTimeout(() => inputElement.classList.remove('shake-animation'), 500);
+    }
+  }
 
-  ngOnDestroy(): void {
-    clearInterval(this.colorInterval);
-    clearInterval(this.ambientSoundInterval);
-    clearInterval(this.particleInterval);
+  showApiMessagePopup(
+    title: string,
+    message: string,
+    type: 'success' | 'error' | 'warning' | 'info' = 'info',
+    duration: number = 5000
+  ) {
+    this.apiMessageTitle = title;
+    this.apiMessageContent = message;
+    this.apiMessageType = type;
+    this.showApiMessage = true;
+    this.messageProgress = 100;
+    clearInterval(this.messageTimeout);
+
+    const interval = 50;
+    const steps = duration / interval;
+    const stepValue = 100 / steps;
+
+    this.messageTimeout = setInterval(() => {
+      this.messageProgress -= stepValue;
+      if (this.messageProgress <= 0) {
+        this.hideApiMessage();
+      }
+    }, interval);
+  }
+
+  hideApiMessage() {
+    this.showApiMessage = false;
     clearInterval(this.messageTimeout);
   }
+
+  ngOnDestroy(): void {
+    clearInterval(this.messageTimeout);
+  }
+
   resetGame() {
-    localStorage.clear(); 
-    location.reload();    
+    localStorage.clear();
+    location.reload();
   }
 }

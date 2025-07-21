@@ -16,16 +16,15 @@
   <img src="assets/images/Google-Play.png" class="pop-item item13" />
 </div>
 
-
-
-<div class="container">
+<div class="container" *ngIf="visitorIdEntered">
   <button class="reset-btn" (click)="resetGame()">×</button>
 
-  <h1 class="title">✨ 99Gift Lucky Wheel ✨</h1>
+  <!-- <h1 class="title">✨ 99Gift Lucky Wheel ✨</h1> -->
 
   <div class="wheel-container" #wheelContainer>
     <div class="wheel" id="wheel" #wheel>
       <div class="wheel-center"></div>
+
       <div
         class="section"
         *ngFor="let prize of prizes; let i = index"
@@ -38,6 +37,7 @@
         </div>
       </div>
     </div>
+
     <div class="pointer"></div>
   </div>
 
@@ -57,23 +57,20 @@
   #fireworksContainer
 ></div>
 
-<!-- Win Prize Card -->
-<div class="prize-card" id="prizeCard" #prizeCard>
+<!-- Prize Card -->
+<div *ngIf="showPrizeCard" class="prize-card">
   <h2>🏆 CONGRATULATIONS! 🏆</h2>
   <div id="voucherDisplay" #voucherDisplay></div>
-  <p id="prizeText" #prizeText></p>
-  <button class="close-btn" id="closeBtn" #closeBtn (click)="showSignup()">
-    Redeem Now
-  </button>
+  <p id="prizeText" #prizeText>{{ currentPrize?.description || '' }}</p>
+  <button class="close-btn" (click)="showSignup()">Redeem Now</button>
+  <button class="close-btn" (click)="closePrizeCard()">Close</button>
 </div>
 
-<!-- Lose Message Card -->
-<div class="lose-card" id="loseCard" #loseCard>
+<!-- Lose Card -->
+<div *ngIf="showLoseCard" class="lose-card">
   <h2>😢 BETTER LUCK NEXT TIME! 😢</h2>
   <p>You didn't win this time, but don't give up!</p>
-  <button class="close-btn" (click)="closeLoseCard()">
-    Try Again Tomorrow
-  </button>
+  <button class="close-btn" (click)="closeLoseCard()">Try Again Tomorrow</button>
 </div>
 
 <!-- Visitor ID Popup -->
@@ -111,7 +108,7 @@
     <h2>Create Your 99Gift Account</h2>
     <p>Complete your signup to claim your ₹{{ walletAmount }} wallet balance</p>
 
-    <form (submit)="onSubmitSignup()">
+    <form (submit)="onSubmitSignup()" #signupNgForm="ngForm" novalidate>
       <div class="form-group">
         <label for="name">Full Name</label>
         <input
@@ -120,7 +117,9 @@
           [(ngModel)]="signupData.name"
           name="name"
           required
+          #name="ngModel"
         />
+        <div *ngIf="name.invalid && name.touched" class="error-msg">Name is required.</div>
       </div>
 
       <div class="form-group">
@@ -131,7 +130,10 @@
           [(ngModel)]="signupData.email"
           name="email"
           required
+          email
+          #email="ngModel"
         />
+        <div *ngIf="email.invalid && email.touched" class="error-msg">Valid email is required.</div>
       </div>
 
       <div class="form-group">
@@ -142,7 +144,12 @@
           [(ngModel)]="signupData.phone"
           name="phone"
           required
+          pattern="^[6-9]\\d{9}$"
+          #phone="ngModel"
         />
+        <div *ngIf="phone.invalid && phone.touched" class="error-msg">
+          Valid Indian phone number required.
+        </div>
       </div>
 
       <div class="form-group">
@@ -153,10 +160,15 @@
           [(ngModel)]="signupData.password"
           name="password"
           required
+          minlength="6"
+          #password="ngModel"
         />
+        <div *ngIf="password.invalid && password.touched" class="error-msg">
+          Password must be at least 6 characters.
+        </div>
       </div>
 
-      <button type="submit" class="submit-btn" [disabled]="isSubmitting">
+      <button type="submit" class="submit-btn" [disabled]="isSubmitting || signupNgForm.invalid">
         {{ isSubmitting ? "Processing..." : "Create Account" }}
       </button>
     </form>
