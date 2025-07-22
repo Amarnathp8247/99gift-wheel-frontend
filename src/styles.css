@@ -638,7 +638,7 @@ top: 4rem;
 
 .submit-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(255, 107, 107, 0.6);
+box-shadow: 0 8px 20px rgba(107, 243, 255, 0.6);
 }
 .close-btn {
   width: 50%;
