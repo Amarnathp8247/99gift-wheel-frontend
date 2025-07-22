@@ -34,15 +34,13 @@ export class SpinnerGameComponent implements AfterViewInit, OnDestroy {
   @ViewChild('voucherDisplay') voucherDisplay!: ElementRef;
   @ViewChild('prizeText') prizeText!: ElementRef;
   @ViewChild('fireworksContainer') fireworksContainer!: ElementRef;
-  @ViewChild('signupForm') signupForm!: ElementRef;
-  @ViewChild('apiMessagePopup') apiMessagePopup!: ElementRef;
 
-  visitorId: string = '';
+  visitorId = '';
   prizes: Prize[] = [];
   currentRotation = 0;
   isSpinning = false;
-  showVisitorIdPopup = false;
   visitorIdEntered = false;
+  showVisitorIdPopup = false;
   showSignupForm = false;
   showSuccessModal = false;
   walletAmount = 0;
@@ -53,7 +51,7 @@ export class SpinnerGameComponent implements AfterViewInit, OnDestroy {
   apiMessageType: 'success' | 'error' | 'warning' | 'info' = 'info';
   messageProgress = 100;
   private messageTimeout: any;
-   audioEnabled = true;
+  audioEnabled = true;
 
   currentPrize: Prize | null = null;
   showPrizeCard = false;
@@ -62,7 +60,7 @@ export class SpinnerGameComponent implements AfterViewInit, OnDestroy {
   signupData = {
     name: '',
     email: '',
-    phone: '',
+    mobile: '',
     password: '',
     city: '',
     gender: 'male',
@@ -91,191 +89,100 @@ export class SpinnerGameComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  toggleAudio(): void {
+  toggleAudio() {
     this.audioEnabled = !this.audioEnabled;
-    if (this.audioEnabled) {
-      this.playAudio('background');
-    } else {
-      this.audioService.stop('background');
-    }
+    this.audioEnabled ? this.playAudio('background') : this.audioService.stop('background');
   }
 
-  playAudio(sound: 'spinner' | 'win' | 'click' | 'hover' | 'celebration' | 'money' | 'background'): void {
-    if (this.audioEnabled) {
-      this.audioService.play(sound);
-    }
+  playAudio(type: 'spinner' | 'win' | 'click' | 'hover' | 'celebration' | 'money' | 'background') {
+    if (this.audioEnabled) this.audioService.play(type);
   }
 
   fetchPrizes() {
     this.gameService.getPrizes().subscribe({
       next: (res: any) => {
-        if (Array.isArray(res.data)) {
-          this.prizes = res.data;
-        } else if (typeof res.data === 'object' && res.data !== null) {
-          this.prizes = Object.values(res.data);
-        } else {
-          this.prizes = [];
-          this.showApiMessagePopup('Error', 'Unexpected prize format.', 'error');
-        }
+        const data = res.data;
+        this.prizes = Array.isArray(data) ? data : Object.values(data || {});
       },
       error: () => {
-        this.prizes = [];
         this.showApiMessagePopup('Error', 'Failed to load prizes.', 'error');
-      },
+      }
     });
   }
 
   submitVisitorId() {
-    this.playAudio('click');
     if (!this.visitorId.trim()) {
-      this.showApiMessagePopup('Error', 'Visitor ID cannot be empty.', 'error');
       this.shakeInput();
+      this.showApiMessagePopup('Error', 'Visitor ID cannot be empty.', 'error');
       return;
     }
 
+    this.playAudio('click');
     this.gameService.visiterId(this.visitorId).subscribe({
-      next: (result: SpinResult) => {
-        this.walletAmount = result.walletAmount || 0;
+      next: (result: any) => {
         this.visitorIdEntered = true;
+        this.walletAmount = result.walletAmount || 0;
         localStorage.setItem('visitorId', this.visitorId);
         this.showVisitorIdPopup = false;
         this.spinBtn.nativeElement.disabled = false;
         this.playAudio('background');
-        this.showApiMessagePopup('Success', result.message || 'Visitor ID registered successfully.', 'success');
+        this.showApiMessagePopup('Success', result.message, 'success');
       },
       error: (err) => {
-        const apiMessage = err?.result?.message;
-        this.showApiMessagePopup('Error', apiMessage, 'error');
-      },
+        this.showApiMessagePopup('Error', err?.result?.message, 'error');
+      }
     });
   }
 
   spinWheel() {
-    this.playAudio('click');
-    if (this.isSpinning || this.prizes.length === 0) return;
-  
-    if (!this.visitorId || this.visitorId.trim() === '') {
+    if (this.isSpinning || !this.visitorIdEntered) {
       this.showVisitorIdPopup = true;
       this.shakeInput();
-      this.showApiMessagePopup('Oops!', 'Please enter your Visitor ID first!', 'warning');
       return;
     }
-  
+
     this.isSpinning = true;
     this.spinBtn.nativeElement.disabled = true;
+    this.playAudio('click');
     this.playAudio('spinner');
-  
+
     this.gameService.handleSpin(this.visitorId).subscribe({
       next: (result: any) => {
-        const spinResult = result?.data?.result;
-        const prize = result?.data?.prize;
-  
-        if (spinResult === 'win' && prize) {
+        let { result: outcome, prize } = result?.data || {};
+
+        // Normalize prize._id
+        if (prize && prize.id && !prize._id) {
+          prize._id = prize.id;
+        }
+
+        if (outcome === 'win' && prize) {
           this.currentPrize = prize;
           this.walletAmount = prize.walletAmount || 0;
-  
-          // 🎉 Dynamic success message
-          // const successMessage = prize.walletAmount > 0
-          //   ? `₹${prize.walletAmount} has been added to your wallet!`
-          //   : `You won: ${prize.name} worth ${prize.value}!`;
-  
-          // this.showApiMessagePopup('Congratulations!', successMessage, 'success');
-  
           this.animateWheelToPrize(prize);
-        } else if (spinResult === 'lose') {
-          this.currentPrize = null;
-          this.walletAmount = 0;
-          this.animateWheelToLose();
         } else {
-          this.isSpinning = false;
-          this.spinBtn.nativeElement.disabled = false;
-          this.audioService.stop('spinner');
-          this.showApiMessagePopup(
-            result.title || 'Oops!',
-            result.message || 'Spin failed.',
-            result.status ? 'success' : 'error'
-          );
+          this.animateWheelToLose();
         }
       },
-      error: (err) => {
+      error: () => {
         this.isSpinning = false;
         this.spinBtn.nativeElement.disabled = false;
         this.audioService.stop('spinner');
-        const apiMessage = err?.error?.message || 'Something went wrong during the spin.';
-        this.showApiMessagePopup('Error', apiMessage, 'error');
-      },
+        this.showApiMessagePopup('Error', 'Spin failed.', 'error');
+      }
     });
   }
-  
 
   animateWheelToPrize(prize: Prize) {
     const index = this.prizes.findIndex((p) => p._id === prize._id);
+
     if (index === -1) {
+      console.warn('Prize not found in prize list', prize);
       this.isSpinning = false;
       this.spinBtn.nativeElement.disabled = false;
       this.audioService.stop('spinner');
       return;
     }
-  
-    const anglePerPrize = 360 / this.prizes.length;
-    const rotateTo = 360 - index * anglePerPrize - anglePerPrize / 2;
-    const totalRotation = this.currentRotation + 360 * 5 + rotateTo;
-  
-    this.renderer.setStyle(
-      this.wheel.nativeElement,
-      'transition',
-      'transform 4s cubic-bezier(0.2, 0.8, 0.3, 1)'
-    );
-    this.renderer.setStyle(
-      this.wheel.nativeElement,
-      'transform',
-      `rotate(${totalRotation}deg)`
-    );
-  
-    this.currentRotation = totalRotation;
-  
-    setTimeout(() => {
-      this.ngZone.run(() => {
-        this.audioService.stop('spinner');
-        this.playAudio('win');
-        this.playAudio('celebration');
-        this.playAudio('money');
-  
-        this.showPrizeCard = true;
-  
-        // ✨ Display custom message based on wallet amount
-        if (this.walletAmount > 0) {
-          this.voucherDisplay.nativeElement.textContent = `You won ₹${this.walletAmount} in your 99Gift Wallet!`;
-        } else {
-          const valueText = prize.value ? ` worth ${prize.value}` : '';
-          this.voucherDisplay.nativeElement.textContent = `You won: ${prize.name}${valueText}`;
-        }
-  
-        this.prizeText.nativeElement.textContent = prize.description || '';
-  
-        this.showLoseCard = false;
-        this.fireworksContainer.nativeElement.classList.add('active');
-  
-        setTimeout(() => {
-          this.fireworksContainer.nativeElement.classList.remove('active');
-        }, 3000);
-  
-        this.isSpinning = false;
-        this.spinBtn.nativeElement.disabled = false;
-  
-        this.renderer.setStyle(this.wheel.nativeElement, 'transition', 'none');
-        this.currentRotation %= 360;
-        this.renderer.setStyle(
-          this.wheel.nativeElement,
-          'transform',
-          `rotate(${this.currentRotation}deg)`
-        );
-      });
-    }, 4000);
-  }
-  
-  animateWheelToLose() {
-    const index = Math.floor(Math.random() * this.prizes.length);
+
     const anglePerPrize = 360 / this.prizes.length;
     const rotateTo = 360 - index * anglePerPrize - anglePerPrize / 2;
     const totalRotation = this.currentRotation + 360 * 5 + rotateTo;
@@ -287,8 +194,27 @@ export class SpinnerGameComponent implements AfterViewInit, OnDestroy {
     setTimeout(() => {
       this.ngZone.run(() => {
         this.audioService.stop('spinner');
-        this.showLoseCard = true;
-        this.showPrizeCard = false;
+        this.playAudio('win');
+        this.playAudio('celebration');
+        this.playAudio('money');
+
+        this.showPrizeCard = true;
+        this.showLoseCard = false;
+
+        if (this.walletAmount > 0) {
+          this.voucherDisplay.nativeElement.textContent = `You won ₹${this.walletAmount} in your 99Gift Wallet!`;
+        } else {
+          const valueText = prize.value ? ` worth ${prize.value}` : '';
+          this.voucherDisplay.nativeElement.textContent = `You won: ${prize.name}${valueText}`;
+        }
+
+        this.prizeText.nativeElement.textContent = prize.description || '';
+        this.fireworksContainer.nativeElement.classList.add('active');
+
+        setTimeout(() => {
+          this.fireworksContainer.nativeElement.classList.remove('active');
+        }, 3000);
+
         this.isSpinning = false;
         this.spinBtn.nativeElement.disabled = false;
 
@@ -299,13 +225,34 @@ export class SpinnerGameComponent implements AfterViewInit, OnDestroy {
     }, 4000);
   }
 
+  animateWheelToLose() {
+    const index = Math.floor(Math.random() * this.prizes.length);
+    const anglePerPrize = 360 / this.prizes.length;
+    const rotateTo = 360 - index * anglePerPrize - anglePerPrize / 2;
+    const totalRotation = this.currentRotation + 360 * 5 + rotateTo;
+
+    this.renderer.setStyle(this.wheel.nativeElement, 'transition', 'transform 4s ease-out');
+    this.renderer.setStyle(this.wheel.nativeElement, 'transform', `rotate(${totalRotation}deg)`);
+    this.currentRotation = totalRotation;
+
+    setTimeout(() => {
+      this.ngZone.run(() => {
+        this.audioService.stop('spinner');
+        this.showLoseCard = true;
+        this.showPrizeCard = false;
+        this.isSpinning = false;
+        this.spinBtn.nativeElement.disabled = false;
+        this.renderer.setStyle(this.wheel.nativeElement, 'transition', 'none');
+        this.currentRotation %= 360;
+        this.renderer.setStyle(this.wheel.nativeElement, 'transform', `rotate(${this.currentRotation}deg)`);
+      });
+    }, 4000);
+  }
+
   showSignup() {
     this.playAudio('click');
     this.showPrizeCard = false;
-    setTimeout(() => {
-      this.showSignupForm = true;
-      this.cdr.detectChanges();
-    }, 300);
+    this.showSignupForm = true;
   }
 
   closePrizeCard() {
@@ -317,83 +264,59 @@ export class SpinnerGameComponent implements AfterViewInit, OnDestroy {
     this.playAudio('click');
     this.showSignupForm = false;
     this.showSuccessModal = true;
-    this.cdr.detectChanges();
   }
 
   onSubmitSignup() {
-    this.playAudio('click');
     if (this.isSubmitting) return;
 
     this.isSubmitting = true;
-    const phoneRegex = /^[6-9]\d{9}$/;
+    this.playAudio('click');
 
-    if (!phoneRegex.test(this.signupData.phone)) {
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (!phoneRegex.test(this.signupData.mobile)) {
       this.showApiMessagePopup('Validation Error', 'Invalid Indian mobile number.', 'error');
       this.isSubmitting = false;
       return;
     }
 
     const payload: SignupPayload = {
-      name: this.signupData.name,
-      email: this.signupData.email,
-      mobile: this.signupData.phone,
-      password: this.signupData.password,
-      city: this.signupData.city,
-      gender: this.signupData.gender,
+      ...this.signupData,
+      mobile: this.signupData.mobile,
       visitorId: this.visitorId,
-      walletAmount: this.walletAmount,
+      walletAmount: this.walletAmount
     };
 
     this.gameService.signupUser(payload).subscribe({
-      next: (response: SignupResponse) => {
-        if (response.success && response.userId) {
-          this.playAudio('celebration');
-          this.resetSignupForm();
-          this.walletAmount = response.data?.walletAmount || 0;
-          this.showSuccessModal = true;
-          this.showApiMessagePopup('Success', response.message || 'Account created successfully!', 'success');
-          
-          // Update visitor ID and store in local storage
-          this.visitorId = response.userId;
+      next: (res: any) => {
+        this.closeSignupForm();
+        this.playAudio('click');
+        this.playAudio('celebration');
+        if (res.success && res.userId) {
+          this.visitorId = res.userId;
           localStorage.setItem('visitorId', this.visitorId);
-          
-      
-          // Then show success modal
-          setTimeout(() => {
-            this.showSignupForm = false;
-            this.showPrizeCard = false;
-            this.showLoseCard = false;
-            this.showSuccessModal = true;
-            this.cdr.detectChanges();
-          
-          }, 300);
+          this.walletAmount = res.data?.walletAmount || 0;
+          this.resetSignupForm();
+          this.showSuccessModal = true;
+          this.showSignupForm = false;
+          this.showApiMessagePopup('Success', res.message, 'success');
+          this.playAudio('celebration');
         } else {
-          this.showApiMessagePopup('Error', response.message || 'Signup failed. Please try again.', 'error');
+          this.showApiMessagePopup('Signup Failed', res.message, 'error');
         }
         this.isSubmitting = false;
       },
       error: (error) => {
-        const errMsg = error?.error?.message || 'Signup failed. Please try again.';
-        const errCode = error?.error?.messageCode || 'UNKNOWN_ERROR';
-      
-        if (errCode === 'DUPLICATE_USER') {
-          this.showApiMessagePopup('Account Exists', errMsg, 'warning');
-        } else {
-          this.showApiMessagePopup('Error', errMsg, 'error');
-        }
-      
+        const err = error?.error;
+        this.showApiMessagePopup('Error', err?.message || 'Signup failed.', 'error');
         this.isSubmitting = false;
       }
-      
     });
   }
 
   closeSuccessModal() {
     this.playAudio('click');
-    localStorage.removeItem('visitorId');
+    this.showSuccessModal = false;
     this.resetSignupForm();
-    this.visitorIdEntered = true;
-    this.cdr.detectChanges();
   }
 
   closeLoseCard() {
@@ -403,14 +326,13 @@ export class SpinnerGameComponent implements AfterViewInit, OnDestroy {
     this.visitorId = '';
     this.visitorIdEntered = false;
     this.showVisitorIdPopup = true;
-    this.spinBtn.nativeElement.disabled = false;
   }
 
   resetSignupForm() {
     this.signupData = {
       name: '',
       email: '',
-      phone: '',
+      mobile: '',
       password: '',
       city: '',
       gender: 'male',
@@ -418,19 +340,14 @@ export class SpinnerGameComponent implements AfterViewInit, OnDestroy {
   }
 
   shakeInput() {
-    const inputElement = document.getElementById('visitorId');
-    if (inputElement) {
-      inputElement.classList.add('shake-animation');
-      setTimeout(() => inputElement.classList.remove('shake-animation'), 500);
+    const input = document.getElementById('visitorId');
+    if (input) {
+      input.classList.add('shake-animation');
+      setTimeout(() => input.classList.remove('shake-animation'), 500);
     }
   }
 
-  showApiMessagePopup(
-    title: string,
-    message: string,
-    type: 'success' | 'error' | 'warning' | 'info' = 'info',
-    duration: number = 5000
-  ) {
+  showApiMessagePopup(title: string, message: string, type: 'success' | 'error' | 'warning' | 'info', duration = 5000) {
     this.apiMessageTitle = title;
     this.apiMessageContent = message;
     this.apiMessageType = type;
@@ -439,14 +356,10 @@ export class SpinnerGameComponent implements AfterViewInit, OnDestroy {
     clearInterval(this.messageTimeout);
 
     const interval = 50;
-    const steps = duration / interval;
-    const stepValue = 100 / steps;
-
+    const stepValue = 100 / (duration / interval);
     this.messageTimeout = setInterval(() => {
       this.messageProgress -= stepValue;
-      if (this.messageProgress <= 0) {
-        this.hideApiMessage();
-      }
+      if (this.messageProgress <= 0) this.hideApiMessage();
     }, interval);
   }
 
@@ -461,7 +374,7 @@ export class SpinnerGameComponent implements AfterViewInit, OnDestroy {
     location.reload();
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     clearInterval(this.messageTimeout);
     this.audioService.stop('background');
     this.audioService.stop('spinner');
