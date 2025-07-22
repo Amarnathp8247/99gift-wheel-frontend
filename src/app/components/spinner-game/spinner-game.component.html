@@ -18,8 +18,9 @@
 
 <div class="container" *ngIf="visitorIdEntered">
   <button class="reset-btn" (click)="resetGame()">×</button>
-
-  <!-- <h1 class="title">✨ 99Gift Lucky Wheel ✨</h1> -->
+  <button class="sound-toggle" (click)="toggleAudio()">
+    {{ audioEnabled ? '🔊' : '🔇' }}
+  </button>
 
   <div class="wheel-container" #wheelContainer>
     <div class="wheel" id="wheel" #wheel>
@@ -34,7 +35,7 @@
         <div class="section-content">
           <span class="prize-value">{{ prize.value }}</span>
           <div class="section-gift-box">
-<img src="assets/images/logo.png" alt="99Gift Logo" class="logo-img" style="height: 50px; width: auto;" />
+            <img src="assets/images/logo.png" alt="99Gift Logo" class="logo-img" style="height: 50px; width: auto;" />
           </div>
         </div>
       </div>
@@ -60,23 +61,28 @@
 ></div>
 
 <!-- Prize Card -->
-<div *ngIf="showPrizeCard" class="prize-card">
+<div class="prize-card" [class.show]="showPrizeCard">
   <h2>🏆 CONGRATULATIONS! 🏆</h2>
+
   <div id="voucherDisplay" #voucherDisplay></div>
-  <p id="prizeText" #prizeText>{{ currentPrize?.description || '' }}</p>
-  <button class="close-btn" (click)="showSignup()">Redeem Now</button>
-  <button class="close-btn" (click)="closePrizeCard()">Close</button>
+
+  
+
+  <div class="button-group">
+    <button class="close-btn redeem-btn" (click)="showSignup()">Redeem Now</button>
+  </div>
 </div>
 
+
 <!-- Lose Card -->
-<div *ngIf="showLoseCard" class="lose-card">
+<div class="lose-card" [class.show]="showLoseCard">
   <h2>😢 BETTER LUCK NEXT TIME! 😢</h2>
   <p>You didn't win this time, but don't give up!</p>
   <button class="close-btn" (click)="closeLoseCard()">Try Again Tomorrow</button>
 </div>
 
 <!-- Visitor ID Popup -->
-<div class="visitor-id-popup-overlay" *ngIf="showVisitorIdPopup">
+<div class="visitor-id-popup-overlay" [class.show]="showVisitorIdPopup">
   <div class="visitor-id-popup-container">
     <div class="popup-header">
       <h2>Welcome to 99Gift! 🎁</h2>
@@ -91,6 +97,7 @@
           placeholder="Enter your Visitor ID"
           (keyup.enter)="submitVisitorId()"
           id="visitorId"
+          #visitorIdInput
         />
       </div>
     </div>
@@ -104,7 +111,7 @@
 </div>
 
 <!-- Signup Form -->
-<div class="signup-form-overlay" *ngIf="showSignupForm">
+<div class="signup-form-overlay" [class.show]="showSignupForm">
   <div class="signup-form-container" #signupForm>
     <button class="close-form-btn" (click)="closeSignupForm()">×</button>
     <h2>Create Your 99Gift Account</h2>
@@ -121,7 +128,9 @@
           required
           #name="ngModel"
         />
-        <div *ngIf="name.invalid && name.touched" class="error-msg">Name is required.</div>
+        <div *ngIf="name.invalid && name.touched" class="error-msg">
+          Name is required.
+        </div>
       </div>
 
       <div class="form-group">
@@ -135,7 +144,9 @@
           email
           #email="ngModel"
         />
-        <div *ngIf="email.invalid && email.touched" class="error-msg">Valid email is required.</div>
+        <div *ngIf="email.invalid && email.touched" class="error-msg">
+          Valid email is required.
+        </div>
       </div>
 
       <div class="form-group">
@@ -146,7 +157,7 @@
           [(ngModel)]="signupData.phone"
           name="phone"
           required
-          pattern="^[6-9]\\d{9}$"
+          pattern="^[6-9]\d{9}$"
           #phone="ngModel"
         />
         <div *ngIf="phone.invalid && phone.touched" class="error-msg">
@@ -170,7 +181,36 @@
         </div>
       </div>
 
-      <button type="submit" class="submit-btn" [disabled]="isSubmitting || signupNgForm.invalid">
+      <div class="form-group">
+        <label for="city">City (Optional)</label>
+        <input
+          type="text"
+          id="city"
+          [(ngModel)]="signupData.city"
+          name="city"
+          #city="ngModel"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="gender">Gender</label>
+        <select
+          id="gender"
+          [(ngModel)]="signupData.gender"
+          name="gender"
+          #gender="ngModel"
+        >
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <button 
+        type="submit" 
+        class="submit-btn" 
+        [disabled]="isSubmitting || signupNgForm.invalid"
+      >
         {{ isSubmitting ? "Processing..." : "Create Account" }}
       </button>
     </form>
@@ -178,7 +218,7 @@
 </div>
 
 <!-- Success Modal -->
-<div class="success-modal-overlay" *ngIf="showSuccessModal">
+<div class="success-modal-overlay" [class.show]="showSuccessModal">
   <div class="success-modal">
     <div class="success-icon">✓</div>
     <h2>Account Created Successfully!</h2>

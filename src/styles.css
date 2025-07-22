@@ -265,9 +265,9 @@ body {
   top: clamp(8px, 2vw, 15px);
   left: clamp(8px, 2vw, 15px);
   overflow: hidden;
-  border: clamp(3px, 1vw, 6px) solid #002865;
-  box-shadow: #00b6ec,
-               #00b6ec,
+  border: clamp(3px, 1vw, 6px) solid #042a6c;
+  box-shadow: 0 0 clamp(15px, 4vw, 30px) #ffd700,
+              0 0 clamp(25px, 8vw, 50px) #ffeb3b,
               inset 0 0 clamp(15px, 4vw, 30px) rgba(255, 215, 0, 0.2);
   transition: transform 5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   z-index: 2;
@@ -303,16 +303,16 @@ body {
 
 .pointer {
   position: absolute;
-  top: clamp(-10px, -2.5vw, -20px);
+  top: clamp(-15px, -3.5vw, -25px);
   left: 50%;
   transform: translateX(-50%);
   width: 0;
   height: 0;
-  border-left: clamp(10px, 3vw, 20px) solid transparent;
-  border-right: clamp(10px, 3vw, 20px) solid transparent;
-  border-top: clamp(15px, 5vw, 30px) solid #ffd700;
+  border-left: clamp(15px, 4vw, 30px) solid transparent;
+  border-right: clamp(15px, 4vw, 30px) solid transparent;
+  border-top: clamp(25px, 7vw, 40px) solid #014966;
   z-index: 20;
-  filter: drop-shadow(0 0 clamp(6px, 1.5vw, 12px) #ffd700);
+  filter: drop-shadow(0 0 clamp(8px, 2vw, 14px) #ffd700);
   animation: pointerBounce 2s ease-in-out infinite;
 }
 
@@ -398,7 +398,7 @@ body {
 
 /* ========== Button Styles ========== */
 .spin-button {
-  background: linear-gradient(45deg, #ff6b6b, #ff8e8e, #fd79a8);
+  background: linear-gradient(45deg, #012c75, #015697, #01657c);
   color: white;
   border: none;
   padding: clamp(10px, 3vw, 20px) clamp(20px, 6vw, 40px);
@@ -406,7 +406,6 @@ body {
   font-weight: bold;
   border-radius: 60px;
   cursor: pointer;
-  box-shadow: 0 clamp(4px, 1.5vw, 8px) clamp(12px, 4vw, 25px) rgba(255, 107, 107, 0.5);
   transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 2px;
@@ -677,7 +676,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 2000;
   animation: fadeIn 0.4s ease-out;
 }
 
@@ -696,11 +695,55 @@ body {
   width: 90%;
   max-width: 500px;
   text-align: center;
-  z-index: 150;
+  z-index: 2001;
+}
+.signup-form-container{
+  text-align: left !important;
+  color: #014966 !important;
+}
+
+.signup-form-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  /* background: rgba(0, 0, 0, 0.7); */
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.signup-form-container {
+  background-color: #ffffff !important;
+  padding: 2rem;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 480px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+  position: relative;
+  animation: slideUp 0.4s ease-out;
+  z-index: 2001;
+}
+
+.signup-form-container h2 {
+  margin-bottom: 0.5rem;
+  font-size: 1.8rem;
+  text-align: center;
+  color: #014966;
+}
+
+.signup-form-container p {
+  text-align: center;
+  color: #555;
+  margin-bottom: 1.5rem;
 }
 
 .success-modal {
   background: linear-gradient(135deg, #16213e, #0f3460);
+  z-index: 2001;
 }
 
 .prize-card, .lose-card {
@@ -711,6 +754,7 @@ body {
   opacity: 0;
   visibility: hidden;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 2001;
 }
 
 .prize-card.show, .lose-card.show {
@@ -779,7 +823,7 @@ body {
   padding: 15px;
   display: flex;
   align-items: center;
-  z-index: 1000;
+  z-index: 2500;
   transform: scale(0.9);
   opacity: 0;
   transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
@@ -840,6 +884,18 @@ body {
 .message-close:hover {
   color: #333;
   transform: scale(1.2);
+}
+.success-modal-overlay {
+  display: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease-in-out;
+}
+
+.success-modal-overlay.show {
+  display: flex;
+  opacity: 1;
+  visibility: visible;
 }
 
 /* ========== Gift Card Styles ========== */
@@ -974,6 +1030,7 @@ body {
   padding: clamp(5px, 2vw, 10px) clamp(10px, 4vw, 20px);
   border-radius: clamp(12px, 4vw, 25px);
   backdrop-filter: blur(10px);
+  z-index: 1000;
 }
 
 .sound-indicator.show {
@@ -1237,7 +1294,6 @@ body {
   .success-modal {
     padding: 20px;
     width: 95%;
-    z-index: 5000 !important;
   }
 
   .popup-header h2,
