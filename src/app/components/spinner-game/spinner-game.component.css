@@ -84,3 +84,16 @@
   transform: scale(1.1);
 }
 
+.popup-header h2 {
+  font-size: 2rem;   /* Smaller than default h2 */
+  margin: 0;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.popup-header p {
+  font-size: 1.1rem;   /* Larger than default p */
+  margin: 0.5rem 0 0;
+  color: #ffffff;
+}
+

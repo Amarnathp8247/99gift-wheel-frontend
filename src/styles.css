@@ -75,11 +75,11 @@ body {
 .item2 { top: 60%; left: 80%; animation-delay: 1s; }
 .item3 { top: 50%; left: 40%; animation-delay: 2s; }
 .item4 { top: 80%; left: 10%; animation-delay: 3s; }
-.item5 { top: 30%; left: 25%; animation-delay: 4s; }
+.item5 { top: 30%; left: 20%; animation-delay: 4s; }
 .item6 { top: 20%; left: 70%; animation-delay: 5s; }
 .item7 { top: 40%; left: 50%; animation-delay: 6s; }
 .item8 { top: 45%; left: 10%; animation-delay: 7s; }
-.item9 { top: 45%; left: 70%; animation-delay: 8s; }
+.item9 { top: 45%; left: 90%; animation-delay: 8s; }
 .item10 { top: 25%; left: 15%; animation-delay: 9s; }
 .item11 { top: 35%; left: 80%; animation-delay: 10s; }
 .item12 { top: 70%; left: 70%; animation-delay: 11s; }
@@ -104,11 +104,13 @@ body {
   left: clamp(8px, 2vw, 15px);
   overflow: hidden;
   border: clamp(3px, 1vw, 6px) solid #042a6c;
-  box-shadow: 0 0 clamp(15px, 4vw, 30px) #ffd700,
-              0 0 clamp(25px, 8vw, 50px) #ffeb3b,
-              inset 0 0 clamp(15px, 4vw, 30px) rgba(255, 215, 0, 0.2);
+  /* box-shadow: 0 0 clamp(15px, 4vw, 30px) #042a6c,
+              0 0 clamp(25px, 8vw, 50px) #042a6c,
+              inset 0 0 clamp(15px, 4vw, 30px) rgba(255, 215, 0, 0.2); */
   transition: transform 4s cubic-bezier(0.2, 0.8, 0.3, 1);
   z-index: 2;
+    background-color: #012c75; /* or koi bhi color */
+
 }
 
 .wheel-center {
@@ -136,7 +138,7 @@ body {
   border-right: clamp(15px, 4vw, 30px) solid transparent;
   border-top: clamp(25px, 7vw, 40px) solid #014966;
   z-index: 20;
-  filter: drop-shadow(0 0 clamp(8px, 2vw, 14px) #ffd700);
+  filter: drop-shadow(0 0 clamp(8px, 2vw, 14px) #ffffff);
   animation: pointerBounce 2s ease-in-out infinite;
 }
 
@@ -197,6 +199,7 @@ body {
 .spin-button {
   background: linear-gradient(45deg, #012c75, #015697, #01657c);
   color: white;
+  
   border: none;
   padding: clamp(10px, 3vw, 20px) clamp(20px, 6vw, 40px);
   font-size: clamp(1rem, 3vw, 1.4rem);
@@ -211,13 +214,12 @@ body {
   animation: buttonPulse 3s ease-in-out infinite;
   width: 100%;
   max-width: 400px;
-  margin: 0 auto;
-  margin-top: 1.5rem;
+  margin-top: -1rem;
 }
 
 .spin-button:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(255, 107, 107, 0.6);
+  box-shadow: 0 8px 20px rgba(34, 92, 169, 0.6);
 }
 
 .reset-btn {
@@ -411,6 +413,7 @@ body {
   width: 90%;
   max-width: 500px;
   z-index: 3001;
+  max-height: 100vh;
   text-align: left;
   color: #014966;
 }
@@ -563,24 +566,33 @@ body {
   display: block;
 }
 
+
+
 .submit-btn {
   width: 100%;
   padding: 15px;
   border: none;
   border-radius: 50px;
-  background: linear-gradient(45deg, #ff6b6b, #fd79a8);
+  background: linear-gradient(45deg, #00b8ee, #00b8ee);
   color: white;
   font-weight: bold;
   font-size: 1.1rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+  box-shadow: 0 5px 15px rgba(53, 64, 195, 0.4);
   margin-top: 1rem;
 }
 
 .submit-btn:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 20px rgba(255, 107, 107, 0.6);
+}
+.close-btn {
+  width: 50%;
+  height: 40px;
+  font-size: large;
+    border-radius: 5px;
+
 }
 
 /* ========== API Message Styles ========== */
@@ -699,8 +711,8 @@ body {
 }
 
 @keyframes buttonPulse {
-  0%,100% { box-shadow: 0 4px 12px rgba(255, 107, 107, 0.5); }
-  50% { box-shadow: 0 8px 20px rgba(255, 107, 107, 0.8), 0 0 20px rgba(255, 107, 107, 0.4); }
+  0%,100% { box-shadow: 0 4px 12px rgba(31, 101, 221, 0.5); }
+  50% { box-shadow: 0 8px 20px rgba(53, 74, 229, 0.8), 0 0 20px rgba(31, 91, 187, 0.4); }
 }
 
 @keyframes pulse {
@@ -722,9 +734,11 @@ body {
 /* ========== Responsive Adjustments ========== */
 @media (max-width: 768px) {
   .wheel-container {
-    width: 280px;
-    height: 280px;
+    width: 200px;
+    height: 200px;
   }
+  
+  
   
   .prize-card, .lose-card, 
   .visitor-id-popup-container, 
@@ -739,6 +753,18 @@ body {
     height: 30px;
     padding: 8px;
   }
+   .signup-form-overlay {
+    padding: 1rem; /* Optional: adds space inside on tablets */
+  }
+
+    .signup-form-container {
+    height: auto;         /* Allow auto height or set fixed height */
+    max-height: 70vh;     /* Reduce vertical height */
+    overflow-y: auto;     /* Scroll if content exceeds height */
+
+  }
+  
+
 }
 
 @media (max-width: 576px) {

@@ -108,11 +108,11 @@ export class SpinnerGameComponent implements AfterViewInit, OnDestroy {
 
   fetchPrizes() {
     this.gameService.getPrizes().subscribe({
-      next: (data: any) => {
-        if (Array.isArray(data)) {
-          this.prizes = data;
-        } else if (typeof data === 'object' && data !== null) {
-          this.prizes = Object.values(data);
+      next: (res: any) => {
+        if (Array.isArray(res.data)) {
+          this.prizes = res.data;
+        } else if (typeof res.data === 'object' && res.data !== null) {
+          this.prizes = Object.values(res.data);
         } else {
           this.prizes = [];
           this.showApiMessagePopup('Error', 'Unexpected prize format.', 'error');
