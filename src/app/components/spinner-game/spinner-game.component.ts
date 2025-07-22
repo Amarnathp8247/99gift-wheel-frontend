@@ -316,6 +316,7 @@ export class SpinnerGameComponent implements AfterViewInit, OnDestroy {
   closeSignupForm() {
     this.playAudio('click');
     this.showSignupForm = false;
+    this.showSuccessModal = true;
     this.cdr.detectChanges();
   }
 
@@ -356,15 +357,15 @@ export class SpinnerGameComponent implements AfterViewInit, OnDestroy {
           this.visitorId = response.userId;
           localStorage.setItem('visitorId', this.visitorId);
           
-          // Close all open modals first
-          this.showSignupForm = false;
-          this.showPrizeCard = false;
-          this.showLoseCard = false;
-          
+      
           // Then show success modal
           setTimeout(() => {
+            this.showSignupForm = false;
+            this.showPrizeCard = false;
+            this.showLoseCard = false;
             this.showSuccessModal = true;
             this.cdr.detectChanges();
+          
           }, 300);
         } else {
           this.showApiMessagePopup('Error', response.message || 'Signup failed. Please try again.', 'error');
@@ -389,10 +390,9 @@ export class SpinnerGameComponent implements AfterViewInit, OnDestroy {
 
   closeSuccessModal() {
     this.playAudio('click');
-    this.showSuccessModal = false;
+    localStorage.removeItem('visitorId');
     this.resetSignupForm();
     this.visitorIdEntered = true;
-    this.showVisitorIdPopup = false;
     this.cdr.detectChanges();
   }
 

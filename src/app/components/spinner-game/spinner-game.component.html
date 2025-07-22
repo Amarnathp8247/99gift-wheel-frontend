@@ -63,16 +63,12 @@
 <!-- Prize Card -->
 <div class="prize-card" [class.show]="showPrizeCard">
   <h2>🏆 CONGRATULATIONS! 🏆</h2>
-
   <div id="voucherDisplay" #voucherDisplay></div>
-
-  
-
+  <p id="prizeText" #prizeText>{{ currentPrize?.description || '' }}</p>
   <div class="button-group">
     <button class="close-btn redeem-btn" (click)="showSignup()">Redeem Now</button>
   </div>
 </div>
-
 
 <!-- Lose Card -->
 <div class="lose-card" [class.show]="showLoseCard">
